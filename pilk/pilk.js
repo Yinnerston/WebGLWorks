@@ -608,16 +608,14 @@ async function start()  {
   )
   await spritesheet.parse();
 
-  console.log(spritesheet)
+  // Animated sprite
   const anim = new PIXI.AnimatedSprite(spritesheet.animations.walking);
-
   // set the animation speed 
   anim.animationSpeed = 0.1666;
-
   // play the animation on a loop
   anim.play();
-
   // add it to the stage to render
   app.stage.addChild(anim);
+
 }
 start();
