@@ -596,6 +596,8 @@ const spritesheetJSON = {
   }
 }
 const necoArcOffset = {x : 110, y: 190}
+const validMovementKeyCodes = {"87": true, "65": true, "83": true, "68": true }
+
 async function start()  {
   // Create the application helper and add its render target to the page
   let app = new PIXI.Application({ resizeTo: window });  // TODO: Investigate toResize: window
@@ -628,20 +630,50 @@ async function start()  {
   // Move neko arc closer to the app.stage
   // Change neco arc's walking animation based on whether
   // the new position is to the left or to the right
-  let newNecoArcPosition = { x: 0, y: 0 };;
+  let newNecoArcPosition = null;
   app.stage.eventMode = 'static';
-  app.stage.onclick = (event) => {
-    newNecoArcPosition.x = event.global.x - necoArcOffset.x;
-    newNecoArcPosition.y = event.global.y - necoArcOffset.y;
+  app.stage.onclick = (e) => {
+    newNecoArcPosition = {x: e.global.x - necoArcOffset.x, y: e.global.y - necoArcOffset.y};
   }
-  // Animate neko arc to walk to 
-  app.ticker.add((delta) => {
-    anim.position.set( 
-      (newNecoArcPosition.x - anim.position.x) * 0.04 * delta + anim.x,
-      (newNecoArcPosition.y - anim.position.y) * 0.04 * delta + anim.y 
-    )
-    console.log(anim.position)
-  });
+  // Add keyboard input
+  window.addEventListener("keydown", keysDown);
+  window.addEventListener("keyup", keysUp);
+  let keys = {}
+  function keysDown(e) { // Handle wasd input for neco arc
+    keys[e.keyCode] = true;
+    if (validMovementKeyCodes[e.keyCode])  {
+      newNecoArcPosition = null;
+    }
+  }
+  function keysUp(e) {  // Turn off input
+    keys[e.keyCode] = false;
+    // TODO: Check validMovementKeyCodes
+      // Check all validMovementKeyCodes are false
+      // set animation to idle
+  }
+  // Game loop including walking animation, collision detection, etc/
+  function gameLoop(delta)  { // Main game loop
+    if (newNecoArcPosition != null)  {
+      anim.position.set( 
+        (newNecoArcPosition.x - anim.position.x) * 0.04 * delta + anim.x,
+        (newNecoArcPosition.y - anim.position.y) * 0.04 * delta + anim.y 
+      )
+    }
+    // TODO: Add velocity calculation
+    if (keys["87"]) {
+      anim.y -= 15 * delta;
+    }
+    if (keys["65"]) {
+      anim.x -= 15 * delta;
+    }
+    if (keys["83"]) {
+      anim.y += 15 * delta;
+    }
+    if (keys["68"]) {
+      anim.x += 15 * delta;
+    }
+  }
+  app.ticker.add(gameLoop);
 
 }
 start();
