@@ -588,15 +588,23 @@ const spritesheetJSON = {
   }, 
   "animations": { // TODO: animations are grouped into sets in the format {ID}_{GROUP_ID}_{ORDER_IN_GROUP}
     // TODO: automatically create groups based on format {ID}_{GROUP_ID}_{ORDER_IN_GROUP}
-    walking: [
+    walkingRight: [
       "91_400_000", "92_400_001", "93_400_002","94_400_003",
       "95_400_004", "96_400_005", "97_400_006","98_400_007",
       "99_400_008", "100_400_009", "101_400_010","102_400_011"
+    ],
+    walkingLeft: [
+      // "103_401_000", 
+      "104_401_001", "105_401_002","106_401_003",
+      "107_401_004", "108_401_005", "109_401_006","110_401_007",
+      "111_401_008", "112_401_009", "113_401_010","114_401_011"
     ]
   }
 }
 const necoArcOffset = {x : 110, y: 190}
 const validMovementKeyCodes = {"87": true, "65": true, "83": true, "68": true }
+const WALKING_RIGHT = 0;
+const WALKING_LEFT = 1;
 
 async function start()  {
   // Create the application helper and add its render target to the page
@@ -616,9 +624,10 @@ async function start()  {
   app.stage.addChild(background);
 
   // looping animated sprite for neco arc
-  const anim = new PIXI.AnimatedSprite(spritesheet.animations.walking);
+  const anim = new PIXI.AnimatedSprite(spritesheet.animations.walkingRight);
   anim.animationSpeed = 0.1666;
   anim.play();
+  let curAnimation = WALKING_RIGHT;
   // anim.eventMode = 'static';
   // anim.onglobalpointermove = (event) => {
   //   console.log(event);
@@ -628,7 +637,7 @@ async function start()  {
   app.stage.addChild(anim);
 
   // Move neko arc closer to the app.stage
-  // Change neco arc's walking animation based on whether
+  // Change neco arc's walkingRight animation based on whether
   // the new position is to the left or to the right
   let newNecoArcPosition = null;
   app.stage.eventMode = 'static';
@@ -642,6 +651,19 @@ async function start()  {
   function keysDown(e) { // Handle wasd input for neco arc
     keys[e.keyCode] = true;
     if (validMovementKeyCodes[e.keyCode])  {
+      // switch textures on changing horizontal directory
+      if (keys["65"] && !keys["68"] && curAnimation != WALKING_LEFT)  { // Pressing A and not D. Go left
+        // anim.textures = anim["walkingLeft"]
+        anim.textures = spritesheet.animations["walkingLeft"]
+        curAnimation = WALKING_LEFT;
+        anim.play()
+      } 
+      else if (!keys["65"] && keys["68"]  && curAnimation != WALKING_RIGHT) {
+        anim.textures = spritesheet.animations["walkingRight"]
+        curAnimation = WALKING_RIGHT;
+        anim.play()
+      }
+      console.log(anim.textures)
       newNecoArcPosition = null;
     }
   }
@@ -651,7 +673,7 @@ async function start()  {
       // Check all validMovementKeyCodes are false
       // set animation to idle
   }
-  // Game loop including walking animation, collision detection, etc/
+  // Game loop including walkingRight animation, collision detection, etc/
   function gameLoop(delta)  { // Main game loop
     if (newNecoArcPosition != null)  {
       anim.position.set( 
@@ -661,16 +683,16 @@ async function start()  {
     }
     // TODO: Add velocity calculation
     if (keys["87"]) {
-      anim.y -= 15 * delta;
+      anim.y -= 12 * delta;
     }
     if (keys["65"]) {
-      anim.x -= 15 * delta;
+      anim.x -= 12 * delta;
     }
     if (keys["83"]) {
-      anim.y += 15 * delta;
+      anim.y += 12 * delta;
     }
     if (keys["68"]) {
-      anim.x += 15 * delta;
+      anim.x += 12 * delta;
     }
   }
   app.ticker.add(gameLoop);
