@@ -595,27 +595,53 @@ const spritesheetJSON = {
     ]
   }
 }
-
+const necoArcOffset = {x : 110, y: 190}
 async function start()  {
-      
   // Create the application helper and add its render target to the page
-  let app = new PIXI.Application({ width: 1920, height: 1080 });  // TODO: Investigate toResize: window
+  let app = new PIXI.Application({ resizeTo: window });  // TODO: Investigate toResize: window
   document.body.appendChild(app.view);
-  // TODO: Add animated sprite
+  app.stage.height = 1080;
+  app.stage.width = 1920;
+
   const spritesheet = new PIXI.Spritesheet(
     PIXI.BaseTexture.from(spritesheetJSON.meta.image), 
     spritesheetJSON
   )
   await spritesheet.parse();
 
-  // Animated sprite
+  // Background
+  let background = PIXI.Sprite.from('assets/necoarcjordans.jpeg')
+  app.stage.addChild(background);
+
+  // looping animated sprite for neco arc
   const anim = new PIXI.AnimatedSprite(spritesheet.animations.walking);
-  // set the animation speed 
   anim.animationSpeed = 0.1666;
-  // play the animation on a loop
   anim.play();
-  // add it to the stage to render
+  // anim.eventMode = 'static';
+  // anim.onglobalpointermove = (event) => {
+  //   console.log(event);
+  //   anim.parent.toLocal(event.global, null, anim.position)
+  // }
+
   app.stage.addChild(anim);
+
+  // Move neko arc closer to the app.stage
+  // Change neco arc's walking animation based on whether
+  // the new position is to the left or to the right
+  let newNecoArcPosition = { x: 0, y: 0 };;
+  app.stage.eventMode = 'static';
+  app.stage.onclick = (event) => {
+    newNecoArcPosition.x = event.global.x - necoArcOffset.x;
+    newNecoArcPosition.y = event.global.y - necoArcOffset.y;
+  }
+  // Animate neko arc to walk to 
+  app.ticker.add((delta) => {
+    anim.position.set( 
+      (newNecoArcPosition.x - anim.position.x) * 0.04 * delta + anim.x,
+      (newNecoArcPosition.y - anim.position.y) * 0.04 * delta + anim.y 
+    )
+    console.log(anim.position)
+  });
 
 }
 start();
