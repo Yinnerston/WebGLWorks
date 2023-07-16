@@ -601,7 +601,7 @@ const spritesheetJSON = {
     ]
   }
 }
-const necoArcOffset = {x : 110, y: 190}
+const necoArcOffset = {x : 110, y: 200}
 const validMovementKeyCodes = {"87": true, "65": true, "83": true, "68": true }
 const WALKING_RIGHT = 0;
 const WALKING_LEFT = 1;
