@@ -682,7 +682,7 @@ const spritesheetJSON = {"frames": {
     idleDance2: ['279_901_000', '280_901_001', '281_901_002', '282_901_003', '283_901_004', '284_901_005', '285_901_006', '286_901_007', '287_901_008', '288_901_009']
   }
 }
-const necoArcOffset = {x : 110, y: 200}
+const BACKGROUND_MARGIN = 300;
 const validMovementKeyCodes = {"87": true, "65": true, "83": true, "68": true }
 const WALKING_RIGHT_ANIMATION = 0;
 const WALKING_LEFT_ANIMATION = 1;
@@ -691,6 +691,19 @@ const IDLE_ANIMATION_KEYS = ['idleDance1', 'idleDance2']
 
 function getRandomDanceMoveKey() {
   return IDLE_ANIMATION_KEYS[Math.floor(Math.random() * IDLE_ANIMATION_KEYS.length)];
+}
+
+// Test For Hit https://pixijs.com/examples/advanced/collision-detection
+// A basic AABB check between two different squares
+function testForAABB(object1, object2)
+{
+    const bounds1 = object1.getBounds();
+    const bounds2 = object2.getBounds();
+
+    return bounds1.x < bounds2.x + bounds2.width
+        && bounds1.x + bounds1.width > bounds2.x
+        && bounds1.y < bounds2.y + bounds2.height
+        && bounds1.y + bounds1.height > bounds2.y;
 }
 
 async function start()  {
@@ -713,7 +726,7 @@ async function start()  {
   // Container to hold all sprites
   const spriteRootContainer = new PIXI.Container();
   spriteRootContainer.x = 0;
-  spriteRootContainer.y = app.screen.height - 300;
+  spriteRootContainer.y = app.screen.height - BACKGROUND_MARGIN;
 
   app.stage.addChild(spriteRootContainer);
   // looping animated sprite for neco arc
@@ -769,17 +782,33 @@ async function start()  {
   // Game loop including walkingRight animation, collision detection, etc/
   function gameLoop(delta)  { // Main game loop
     // TODO: Add velocity calculation
-    if (keys["87"]) {
-      anim.y -= 12 * delta;
+    if (keys["87"]) { // w
+      if (anim.y < - app.screen.height)  {
+        anim.y = BACKGROUND_MARGIN;
+      } else  {
+        anim.y -= 12 * delta;
+      }
     }
-    if (keys["65"]) {
-      anim.x -= 12 * delta;
+    if (keys["65"]) { // a
+      if (anim.x < -BACKGROUND_MARGIN)  {
+        anim.x = app.screen.width + BACKGROUND_MARGIN;
+      } else  {
+        anim.x -= 12 * delta;
+      }
     }
-    if (keys["83"]) {
-      anim.y += 12 * delta;
+    if (keys["83"]) { // s
+      if (anim.y > BACKGROUND_MARGIN)  {
+        anim.y = - app.screen.height;
+      } else  {
+        anim.y += 12 * delta;
+      }
     }
-    if (keys["68"]) {
-      anim.x += 12 * delta;
+    if (keys["68"]) { // d
+      if (anim.x > app.screen.width + BACKGROUND_MARGIN)  {
+        anim.x = - BACKGROUND_MARGIN;
+      } else  {
+        anim.x += 12 * delta;
+      }
     }
   }
   app.ticker.add(gameLoop);
