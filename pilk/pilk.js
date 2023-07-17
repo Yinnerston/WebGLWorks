@@ -721,13 +721,15 @@ async function start()  {
   anim.animationSpeed = 0.1666;
   anim.play();
   let curAnimation = IDLE_ANIMATION;
-  // anim.eventMode = 'static';
-  // anim.onglobalpointermove = (event) => {
-  //   console.log(event);
-  //   anim.parent.toLocal(event.global, null, anim.position)
-  // }
-
   spriteRootContainer.addChild(anim);
+
+  // Spawn magical pair of jordans
+  const necoArcJordans = PIXI.Sprite.from("assets/necoarcjordans.jpeg");
+  necoArcJordans.height = 170;
+  necoArcJordans.width = 170;
+
+  necoArcJordans.x = app.screen.width * 3 / 4;
+  spriteRootContainer.addChild(necoArcJordans);
 
   // Move neko arc closer to the app.stage
   // Change neco arc's walkingRight animation based on whether
@@ -740,13 +742,13 @@ async function start()  {
     keys[e.keyCode] = true;
     if (validMovementKeyCodes[e.keyCode])  {
       // switch textures on changing horizontal directory
-      if (keys["65"] && !keys["68"] && curAnimation != WALKING_LEFT_ANIMATION)  { // Pressing A and not D. Go left
+      if (keys["65"] && !(keys["68"] || keys["83"] || keys["87"]) && curAnimation != WALKING_LEFT_ANIMATION)  { // Pressing A and not D. Go left
         // anim.textures = anim["walkingLeft"]
         anim.textures = spritesheet.animations["walkingLeft"]
         curAnimation = WALKING_LEFT_ANIMATION;
         anim.play()
       } 
-      else if (!keys["65"] && keys["68"]  && curAnimation != WALKING_RIGHT_ANIMATION) {
+      else if (!keys["65"] && (keys["68"] || keys["83"] || keys["87"])  && curAnimation != WALKING_RIGHT_ANIMATION) {
         anim.textures = spritesheet.animations["walkingRight"]
         curAnimation = WALKING_RIGHT_ANIMATION;
         anim.play()
@@ -758,7 +760,7 @@ async function start()  {
     // TODO: Check validMovementKeyCodes
       // Check all validMovementKeyCodes are false
       // set animation to idle
-    if (!keys["65"] && !keys["68"] && curAnimation != IDLE_ANIMATION) {
+    if (!keys["65"] && !(keys["68"] || keys["83"] || keys["87"]) && curAnimation != IDLE_ANIMATION) {
       anim.textures = spritesheet.animations[getRandomDanceMoveKey()]
       curAnimation = IDLE_ANIMATION;
       anim.play()
