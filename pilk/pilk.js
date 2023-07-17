@@ -682,6 +682,7 @@ const spritesheetJSON = {"frames": {
     idleDance2: ['279_901_000', '280_901_001', '281_901_002', '282_901_003', '283_901_004', '284_901_005', '285_901_006', '286_901_007', '287_901_008', '288_901_009']
   }
 }
+var ROTATE_JORDANS = false;
 const BACKGROUND_MARGIN = 300;
 const validMovementKeyCodes = {"87": true, "65": true, "83": true, "68": true }
 const WALKING_RIGHT_ANIMATION = 0;
@@ -740,9 +741,17 @@ async function start()  {
   const necoArcJordans = PIXI.Sprite.from("assets/necoarcjordans.jpeg");
   necoArcJordans.height = 170;
   necoArcJordans.width = 170;
-
+  necoArcJordans.anchor.set(0.5);
   necoArcJordans.x = app.screen.width * 3 / 4;
   spriteRootContainer.addChild(necoArcJordans);
+  // Spin to windsd jordans every 5 seconds
+  let necoArcJordansSpinToWinInterval = setInterval(() => {
+    ROTATE_JORDANS = !ROTATE_JORDANS;
+    necoArcJordans.angle = 0;
+  }, 5000);
+
+  // TODO: Add collision
+  // TODO: Add new scene on collision https://javascript.plainenglish.io/scenes-in-pixijs-1ee4b0af5116
 
   // Move neko arc closer to the app.stage
   // Change neco arc's walkingRight animation based on whether
@@ -809,6 +818,9 @@ async function start()  {
       } else  {
         anim.x += 12 * delta;
       }
+    }
+    if (ROTATE_JORDANS) {
+      necoArcJordans.angle += 69 * delta;
     }
   }
   app.ticker.add(gameLoop);
