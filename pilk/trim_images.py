@@ -5,9 +5,12 @@ import numpy as np
 
 def trim_image(im):
     """
-    Outputs 210x220 image centered on neco arc
+    Outputs ~~220x220~~ 170x170 image centered on neco arc
     """
-    trimmed_image = im[471:699, 380:600]
+    # Reduced size to 170x170 because i'm only using a subset of all the neco arc animations
+    # if you want ot use all animations 220x220 contains the max animation size
+    # trimmed_image = im[471:699, 380:600]
+    trimmed_image = im[496:674, 400:570]
     return trimmed_image
     
 def remove_greenscreen(im):
@@ -21,11 +24,12 @@ def remove_greenscreen(im):
     return result
 
 
-# neco_arc_long = cv2.imread("assets/133_404_001.bmp.png", flags=cv2.IMREAD_UNCHANGED)
+# neco_arc_long = cv2.imread("95_400_004.bmp.png", flags=cv2.IMREAD_UNCHANGED)
 # trimmed_neco_arc_long = trim_image(neco_arc_long)
 # neco_arc_long_out = remove_greenscreen(trimmed_neco_arc_long)
+# cv2.imshow("long", neco_arc_long_out)
+# cv2.waitKey()
 # cv2.imwrite(os.path.join("output", "neco_arc_long.png"), neco_arc_long_out)
-
 # neco_arc_tall = cv2.imread("assets/212_601_001.bmp.png", flags=cv2.IMREAD_UNCHANGED)
 # trim_image(neco_arc_tall)
 
