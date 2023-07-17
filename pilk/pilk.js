@@ -677,13 +677,21 @@ const spritesheetJSON = {"frames": {
       "104_401_001", "105_401_002","106_401_003",
       "107_401_004", "108_401_005", "109_401_006","110_401_007",
       "111_401_008", "112_401_009", "113_401_010","114_401_011"
-    ]
+    ],
+    idleDance1: ['289_902_000', '290_902_001', '291_902_002', '292_902_003', '293_902_004', '294_902_005', '295_902_006', '296_902_007', '297_902_008', '298_902_009', '299_902_010', '301_903_000', '302_903_001', '303_903_002', '304_903_003', '305_903_004', '306_903_005', '307_903_006', '308_903_007', '309_903_008', '310_903_009', '311_903_010', '312_903_011', '313_903_012', '314_903_013', '315_903_014', '316_904_000', '317_904_001', '318_904_002', '319_904_003', '320_904_004', '321_904_005', '322_904_006', '323_904_007', '324_904_008', '325_904_009', '326_904_010', '327_904_011', '328_904_012', '329_904_013', '330_904_014', '331_904_015', '332_904_016', '333_904_017', '334_904_018', '335_904_019', '336_904_020', '337_904_021'],
+    idleDance2: ['279_901_000', '280_901_001', '281_901_002', '282_901_003', '283_901_004', '284_901_005', '285_901_006', '286_901_007', '287_901_008', '288_901_009']
   }
 }
 const necoArcOffset = {x : 110, y: 200}
 const validMovementKeyCodes = {"87": true, "65": true, "83": true, "68": true }
-const WALKING_RIGHT = 0;
-const WALKING_LEFT = 1;
+const WALKING_RIGHT_ANIMATION = 0;
+const WALKING_LEFT_ANIMATION = 1;
+const IDLE_ANIMATION = 2;
+const IDLE_ANIMATION_KEYS = ['idleDance1', 'idleDance2']
+
+function getRandomDanceMoveKey() {
+  return IDLE_ANIMATION_KEYS[Math.floor(Math.random() * IDLE_ANIMATION_KEYS.length)];
+}
 
 async function start()  {
   // Create the application helper and add its render target to the page
@@ -709,10 +717,10 @@ async function start()  {
 
   app.stage.addChild(spriteRootContainer);
   // looping animated sprite for neco arc
-  const anim = new PIXI.AnimatedSprite(spritesheet.animations.walkingRight);
+  const anim = new PIXI.AnimatedSprite(spritesheet.animations.idleDance2);
   anim.animationSpeed = 0.1666;
   anim.play();
-  let curAnimation = WALKING_RIGHT;
+  let curAnimation = IDLE_ANIMATION;
   // anim.eventMode = 'static';
   // anim.onglobalpointermove = (event) => {
   //   console.log(event);
@@ -732,15 +740,15 @@ async function start()  {
     keys[e.keyCode] = true;
     if (validMovementKeyCodes[e.keyCode])  {
       // switch textures on changing horizontal directory
-      if (keys["65"] && !keys["68"] && curAnimation != WALKING_LEFT)  { // Pressing A and not D. Go left
+      if (keys["65"] && !keys["68"] && curAnimation != WALKING_LEFT_ANIMATION)  { // Pressing A and not D. Go left
         // anim.textures = anim["walkingLeft"]
         anim.textures = spritesheet.animations["walkingLeft"]
-        curAnimation = WALKING_LEFT;
+        curAnimation = WALKING_LEFT_ANIMATION;
         anim.play()
       } 
-      else if (!keys["65"] && keys["68"]  && curAnimation != WALKING_RIGHT) {
+      else if (!keys["65"] && keys["68"]  && curAnimation != WALKING_RIGHT_ANIMATION) {
         anim.textures = spritesheet.animations["walkingRight"]
-        curAnimation = WALKING_RIGHT;
+        curAnimation = WALKING_RIGHT_ANIMATION;
         anim.play()
       }
     }
@@ -750,6 +758,11 @@ async function start()  {
     // TODO: Check validMovementKeyCodes
       // Check all validMovementKeyCodes are false
       // set animation to idle
+    if (!keys["65"] && !keys["68"] && curAnimation != IDLE_ANIMATION) {
+      anim.textures = spritesheet.animations[getRandomDanceMoveKey()]
+      curAnimation = IDLE_ANIMATION;
+      anim.play()
+    }
   }
   // Game loop including walkingRight animation, collision detection, etc/
   function gameLoop(delta)  { // Main game loop
