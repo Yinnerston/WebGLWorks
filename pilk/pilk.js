@@ -610,8 +610,6 @@ async function start()  {
   // Create the application helper and add its render target to the page
   let app = new PIXI.Application({ resizeTo: window });  // TODO: Investigate toResize: window
   document.body.appendChild(app.view);
-  app.stage.height = 1080;
-  app.stage.width = 1920;
 
   const spritesheet = new PIXI.Spritesheet(
     PIXI.BaseTexture.from(spritesheetJSON.meta.image), 
@@ -620,9 +618,17 @@ async function start()  {
   await spritesheet.parse();
 
   // Background
-  let background = PIXI.Sprite.from('assets/necoarcjordans.jpeg')
+  let background = PIXI.Sprite.from('assets/mbtl.png')
+  background.height = app.screen.height;
+  background.width = app.screen.width;
   app.stage.addChild(background);
 
+  // Container to hold all sprites
+  const spriteRootContainer = new PIXI.Container();
+  spriteRootContainer.x = 0;
+  spriteRootContainer.y = app.screen.height - 300;
+
+  app.stage.addChild(spriteRootContainer);
   // looping animated sprite for neco arc
   const anim = new PIXI.AnimatedSprite(spritesheet.animations.walkingRight);
   anim.animationSpeed = 0.1666;
@@ -634,16 +640,11 @@ async function start()  {
   //   anim.parent.toLocal(event.global, null, anim.position)
   // }
 
-  app.stage.addChild(anim);
+  spriteRootContainer.addChild(anim);
 
   // Move neko arc closer to the app.stage
   // Change neco arc's walkingRight animation based on whether
   // the new position is to the left or to the right
-  let newNecoArcPosition = null;
-  app.stage.eventMode = 'static';
-  app.stage.onclick = (e) => {
-    newNecoArcPosition = {x: e.global.x - necoArcOffset.x, y: e.global.y - necoArcOffset.y};
-  }
   // Add keyboard input
   window.addEventListener("keydown", keysDown);
   window.addEventListener("keyup", keysUp);
@@ -663,8 +664,6 @@ async function start()  {
         curAnimation = WALKING_RIGHT;
         anim.play()
       }
-      console.log(anim.textures)
-      newNecoArcPosition = null;
     }
   }
   function keysUp(e) {  // Turn off input
@@ -675,12 +674,6 @@ async function start()  {
   }
   // Game loop including walkingRight animation, collision detection, etc/
   function gameLoop(delta)  { // Main game loop
-    if (newNecoArcPosition != null)  {
-      anim.position.set( 
-        (newNecoArcPosition.x - anim.position.x) * 0.04 * delta + anim.x,
-        (newNecoArcPosition.y - anim.position.y) * 0.04 * delta + anim.y 
-      )
-    }
     // TODO: Add velocity calculation
     if (keys["87"]) {
       anim.y -= 12 * delta;
@@ -699,3 +692,5 @@ async function start()  {
 
 }
 start();
+var audio = new Audio('assets/necoArcTheme.opus');
+audio.play();
