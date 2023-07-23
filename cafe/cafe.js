@@ -336,16 +336,21 @@ async function start()  {
         necoArcSpritesheetJSON
     )
     await necoArcSpritesheet.parse();
-    // let background = PIXI.Sprite.from('assets/coffeecounter1.mp4')
+    // Add animated backgorund
     let background = PIXI.Texture.from('assets/coffeecounter1.mp4');
-    console.log(background.baseTexture.resource.source);
     background.baseTexture.resource.source.loop = true;
-
     const backgroundVideoSprite = new PIXI.Sprite(background);
     backgroundVideoSprite.height = app.screen.height;
     backgroundVideoSprite.width = app.screen.width;
     backgroundVideoSprite.preload = 'auto'
     app.stage.addChild(backgroundVideoSprite);
+
+    const anim = new PIXI.AnimatedSprite(necoArcSpritesheet.animations.fortniteDance);
+    anim.animationSpeed = 0.1666;
+    anim.play();
+    app.stage.addChild(anim);
+
+    
     // Can only play video on user interaction because chrome Autoplay Policy
     window.addEventListener("keydown", keysDown);
     function keysDown(e)    {
