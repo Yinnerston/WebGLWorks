@@ -15,8 +15,27 @@ body {
 /* Flexbox layout for global header second row primary nav */
 .siteheader-primary-nav {
     grid-area: siteheader-primary-nav;
+    /* TODO: This shouldn't span 3 but instead */
     grid-column: span 3;
     display: flex;
+    /* TODO: This should be space-between and primary nav should not*/
+    /* TODO: Add max-width, min spacing */
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Nav element in site header primary nav */
+.siteheader-primary-nav-item {
+    flex: 1;
+    color: white;
+}
+
+/* TODO: Remove on mobile */
+.siteheader-primary-nav-padding {
+    flex: 1;
 }
 
 /* Flexbox layout for global header first row primary nav */
@@ -37,7 +56,6 @@ body {
     grid-template-areas:
         "siteheader-logo siteheader-searchbar siteheader-secondary-nav"
         "siteheader-primary-nav siteheader-primary-nav siteheader-primary-nav";
-    background-color: blue;
 }
 
 /* Background video */
