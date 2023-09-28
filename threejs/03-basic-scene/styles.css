@@ -1,0 +1,69 @@
+body {
+    margin: 0;
+}
+
+/* Logo for global header. TODO: Shrink to logo icon on mobile? */
+.siteheader-logo {
+    grid-area: siteheader-logo;
+}
+
+/* Searchbar flexbox for nav. TODO: Shrink to search icon on mobile? */
+.siteheader-searchbar {
+    grid-area: siteheader-searchbar;
+}
+
+/* Flexbox layout for global header second row primary nav */
+.siteheader-primary-nav {
+    grid-area: siteheader-primary-nav;
+    grid-column: span 3;
+    display: flex;
+}
+
+/* Flexbox layout for global header first row primary nav */
+.siteheader-secondary-nav {
+    grid-area: siteheader-secondary-nav;
+    display: flex;
+}
+
+/* global grid layout for the header */  
+.global-siteheader {
+    display: grid;
+    position: fixed;
+    width: 100%;
+    grid-template-columns: [logo] 200px [searchbar] 1fr [secondary-nav] 1fr;
+    /*TODO: Vary logo width based on mobile?*/
+    grid-template-rows: 50px 50px;
+    gap: 20px;
+    grid-template-areas:
+        "siteheader-logo siteheader-searchbar siteheader-secondary-nav"
+        "siteheader-primary-nav siteheader-primary-nav siteheader-primary-nav";
+    background-color: blue;
+}
+
+/* Background video */
+.index-bg-video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: fill;
+}
+
+.mission-statement-h1 {
+    /*TODO: typography?*/
+    color: white;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.mission-statement-em {
+    color: yellow;
+}
+
+.mission-statement-p {
+    color: white;
+}
+
+.mission-statement-section {
+    margin: 0;
+    position: absolute;
+    top: 90vh;
+}
