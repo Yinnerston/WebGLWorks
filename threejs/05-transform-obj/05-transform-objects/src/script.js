@@ -9,11 +9,23 @@ const scene = new THREE.Scene()
 /**
  * Objects
  */
-const geometry = new THREE.BoxGeometry(1, 1, 1)
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
-const mesh = new THREE.Mesh(geometry, material)
-scene.add(mesh)
+const redGeometry = new THREE.BoxGeometry(1, 0.1, 1);
+const greenGeometry = new THREE.BoxGeometry(1, 0.1, 1);
+const blueGeometry = new THREE.BoxGeometry(1, 0.1, 1);
 
+const redMaterial = new THREE.MeshBasicMaterial({color: "red"})
+const greenMaterial = new THREE.MeshBasicMaterial({color: "green"})
+const blueMaterial = new THREE.MeshBasicMaterial({color: "blue"})
+
+const redMesh = new THREE.Mesh(redGeometry, redMaterial)
+const greenMesh = new THREE.Mesh(greenGeometry, greenMaterial)
+const blueMesh = new THREE.Mesh(blueGeometry, blueMaterial)
+
+redMesh.position.y = 0.2;
+greenMesh.position.y = -0.2;
+scene.add(redMesh)
+scene.add(greenMesh)
+scene.add(blueMesh)
 /**
  * Sizes
  */
@@ -37,3 +49,17 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.render(scene, camera)
+
+/**
+ * We're going to animate the stacks using a sin wave
+ */
+const clock = new THREE.Clock();
+const animateStack = () => {
+    const elapsedTime = clock.getElapsedTime()
+
+    redMesh.position.y = 0.2 + 0.5 * Math.abs(Math.sin(0.5 * elapsedTime))
+    greenMesh.position.y = - 0.2 - 0.5 * Math.abs(Math.sin(0.5 * elapsedTime))
+    renderer.render(scene, camera)
+    requestAnimationFrame(animateStack);
+}
+animateStack()
