@@ -21,6 +21,13 @@ Requirements:
 - Mobile accessible view and menu
 - Vaporwave vibe
 
+# New Idea
+
+[Storyboard](https://youtu.be/Ky0gz481nLg)
+- Neco arc transition animation (bad apple) from left to right pouring the pilk
+- Background SVG of pouring Pilk
+- Scroll animation
+
 ### Credits, Pixel Art & Inspirations
 
 - neco arc sprites : Ripped by Yvette#2060/Icy Mitsuhashi#1870. Previews made by !HisoNoKami!#9665 from the melty blood discord (Melty Blood Type Lumina)
