@@ -1,8 +1,9 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import GUI from 'lil-gui'
 
 THREE.ColorManagement.enabled = false
-
+const gui = new GUI()
 /**
  * Base
  */
@@ -79,32 +80,87 @@ const doorRoughnessTexture = textureLoader.load("/textures/door/roughness.jpg")
     // Shoot sword with some velocity
     // Generate spherical explosion when the sword reaches the target
 
+/**
+ * Lights.
+ * You need to define lights otherwise a MeshStandardMaterial will be pitch black
+ */
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+scene.add(ambientLight)
+
+const pointLight = new THREE.PointLight(0xffffff, 0.5)
+pointLight.position.x = 2
+pointLight.position.y = 3
+pointLight.position.z = 4
+scene.add(pointLight)
 // Mutualising materials is better for performance
-const sharedMaterial = new THREE.MeshBasicMaterial({
+const sharedMaterial = new THREE.MeshStandardMaterial({
     map: doorColorTexture,
     alphaMap: doorAlphaTexture,
+    aoMap: doorAmbientOcclusionTexture,
+    displacementMap: doorHeightTexture,
+    roughnessMap: doorRoughnessTexture,
+    normalMap: doorNormalTexture,
+    // Normal scale is a vector2
+    // envMap:  What is surrounding the scene --> reflection, refraction, lighting on mesh
 })
+console.log(sharedMaterial)
+gui.add(sharedMaterial, 'roughness').min(0).max(1).step(0.001)
+gui.add(sharedMaterial, 'aoMapIntensity').min(0).max(10).step(0.001)
+gui.add(sharedMaterial, 'displacementScale').min(0).max(1).step(0.001)
+
+
+// Load an env map
+const cubeTextureLoader = new THREE.CubeTextureLoader()
+const envMapTexture = cubeTextureLoader.load([
+    '/textures/environmentMaps/2/px.jpg',
+    '/textures/environmentMaps/2/nx.jpg',
+    '/textures/environmentMaps/2/py.jpg',
+    '/textures/environmentMaps/2/ny.jpg',
+    '/textures/environmentMaps/2/pz.jpg',
+    '/textures/environmentMaps/2/nz.jpg'
+])
+const envMapMaterial = new THREE.MeshStandardMaterial({
+    metalness: 0.7,
+    roughness: 0.2,
+    envMap: envMapTexture
+})
+gui.add(envMapMaterial, 'roughness').min(0).max(1).step(0.001).name("env map roughness")
+gui.add(envMapMaterial, 'metalness').min(0).max(1).step(0.001).name("env map metalness")
+
+
+/**
+ * MeshPhysicalMaterial is used to provide more advanced physically-based rendering properties
+ * PointsMaterial is used to render particles
+ * ShaderMaterial and RawShaderMaterial let you define your custom shaders
+ */
+const meshPhysicalMaterial = new THREE.MeshPhysicalMaterial()
+
 
 const cubeGeometry = new THREE.BoxGeometry(1, 1, 1)
-const cubeBasicMaterial = new THREE.MeshBasicMaterial({ 
-    // color: "red",
-    map: doorColorTexture, 
-    alphaMap: doorAlphaTexture
- })
-const cubeMesh = new THREE.Mesh(cubeGeometry, cubeBasicMaterial)
+// const cubeBasicMaterial = new THREE.MeshBasicMaterial({ 
+//     // color: "red",
+//     map: doorColorTexture, 
+//     alphaMap: doorAlphaTexture
+//  })
+const cubeMesh = new THREE.Mesh(cubeGeometry, sharedMaterial)
 
-const sphereGeometry = new THREE.SphereGeometry(0.5)
-const sphereBasicMaterial = new THREE.MeshBasicMaterial({ color: "blue" })
-const sphereMesh = new THREE.Mesh(sphereGeometry, sphereBasicMaterial)
+const sphereGeometry = new THREE.SphereGeometry(0.5, 64, 64)
+// const sphereBasicMaterial = new THREE.MeshBasicMaterial({ color: "blue" })
+const sphereMesh = new THREE.Mesh(sphereGeometry, sharedMaterial)
+
+const sphereEnvMapGeometry = new THREE.SphereGeometry(0.5, 64, 64)
+// const sphereBasicMaterial = new THREE.MeshBasicMaterial({ color: "blue" })
+const sphereEnvMapMesh = new THREE.Mesh(sphereGeometry, envMapMaterial)
+sphereEnvMapMesh.position.y = 2
 
 const torusGeometry = new THREE.TorusGeometry(0.5, 0.2)
-const torusBasicMaterial = new THREE.MeshBasicMaterial({ color: "green" })
-const torusMesh = new THREE.Mesh(torusGeometry, torusBasicMaterial)
+// const torusBasicMaterial = new THREE.MeshBasicMaterial({ color: "green" })
+const torusMesh = new THREE.Mesh(torusGeometry, sharedMaterial)
 
 cubeMesh.position.x = -2
 torusMesh.position.x = 2
 
-scene.add(cubeMesh, sphereMesh, torusMesh)
+scene.add(cubeMesh, sphereMesh, torusMesh, sphereEnvMapMesh)
 
 
 
@@ -118,6 +174,14 @@ renderer.outputColorSpace = THREE.LinearSRGBColorSpace
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
+var objTransforms = {
+    rotateObjects: true,
+    rotation: 1
+}
+gui.add(objTransforms, 'rotateObjects')
+gui.add(objTransforms, 'rotation').min(0).max(5).step(0.01)
+
+
 /**
  * Animate
  */
@@ -126,16 +190,18 @@ const clock = new THREE.Clock()
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
+    if (objTransforms.rotateObjects)    {
+        // Update objects by rotating them
+        cubeMesh.rotation.y = 0.1 * elapsedTime * objTransforms.rotation
+        cubeMesh.rotation.x = 0.2 * elapsedTime * objTransforms.rotation
 
-    // Update objects by rotating them
-    cubeMesh.rotation.y = 0.1 * elapsedTime 
-    cubeMesh.rotation.x = 0.2 * elapsedTime
+        torusMesh.rotation.y = 0.1 * elapsedTime * objTransforms.rotation
+        torusMesh.rotation.x = 0.2 * elapsedTime * objTransforms.rotation
 
-    torusMesh.rotation.y = 0.1 * elapsedTime
-    torusMesh.rotation.x = 0.2 * elapsedTime
+        sphereMesh.rotation.y = 0.1 * elapsedTime * objTransforms.rotation
+        sphereMesh.rotation.x = 0.2 * elapsedTime * objTransforms.rotation
 
-    sphereMesh.rotation.y = 0.1 * elapsedTime
-    sphereMesh.rotation.x = 0.2 * elapsedTime
+    }
 
     // Update controls
     controls.update()
