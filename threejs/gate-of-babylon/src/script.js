@@ -54,12 +54,12 @@ gui.add(camera.position, "z").min(-10).max(10).step(0.01).name("Camera Z")
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
 
-// Load the among us textures
-const textureLoader = new THREE.TextureLoader()
-const amongUsColorMap = textureLoader.load("/models/amongus/Textures/yellow_aud_diffuse.png")
-const amongUsNormalMap = textureLoader.load("/models/amongus/Textures/amongusdude__nmap.png")
-const amongUsRoughnessMap = textureLoader.load("/models/amongus/Textures/amongusdude__rough.png")
-const amongUsMetalnessMap = textureLoader.load("/models/amongus/Textures/amongusdude__metalness.png")
+// // Load the among us textures
+// const textureLoader = new THREE.TextureLoader()
+// const amongUsColorMap = textureLoader.load("/models/amongus/Textures/yellow_aud_diffuse.png")
+// const amongUsNormalMap = textureLoader.load("/models/amongus/Textures/amongusdude__nmap.png")
+// const amongUsRoughnessMap = textureLoader.load("/models/amongus/Textures/amongusdude__rough.png")
+// const amongUsMetalnessMap = textureLoader.load("/models/amongus/Textures/amongusdude__metalness.png")
 /**
  * Define a sphere, cube and torus with MeshBasicMaterial
  * I want to create:
@@ -105,9 +105,19 @@ gui.add(pointLight.position, 'z').min(0).max(10).step(0.001).name("PointLight z"
 
 // Load the among us model and material
 const gltfLoader = new GLTFLoader();
+var amongUsObj;
 gltfLoader.load( '/models/amongus/AmongUsDude.glb', function ( gltf ) {
 
 	scene.add( gltf.scene );
+    console.log(gltf)
+    console.log(gltf.scene.children[0])
+    amongUsObj = gltf.scene.children[0]
+    gui.add(gltf.scene.children[0].position, "x").min(-10).max(10).step(0.001).name("AmongUs x")
+    gui.add(gltf.scene.children[0].position, "y").min(-10).max(10).step(0.001).name("AmongUs y")
+    gui.add(gltf.scene.children[0].position, "z").min(-10).max(10).step(0.001).name("AmongUs z")
+    gui.add(gltf.scene.children[0].scale, "x").min(0).max(10).step(0.001).name("AmongUs scale x")
+    gui.add(gltf.scene.children[0].scale, "y").min(0).max(10).step(0.001).name("AmongUs scale y")
+    gui.add(gltf.scene.children[0].scale, "z").min(0).max(10).step(0.001).name("AmongUs scale z")
 
 }, undefined, function ( error ) {
 
@@ -115,19 +125,19 @@ gltfLoader.load( '/models/amongus/AmongUsDude.glb', function ( gltf ) {
 
 } );
 
-const amongUsMaterial = new THREE.MeshStandardMaterial({
-    map: amongUsColorMap,
-    roughnessMap: amongUsRoughnessMap,
-    normalMap: amongUsNormalMap,
-    metalnessMap: amongUsMetalnessMap
-    // Normal scale is a vector2
-    // envMap:  What is surrounding the scene --> reflection, refraction, lighting on mesh
-})
+// const amongUsMaterial = new THREE.MeshStandardMaterial({
+//     map: amongUsColorMap,
+//     roughnessMap: amongUsRoughnessMap,
+//     normalMap: amongUsNormalMap,
+//     metalnessMap: amongUsMetalnessMap
+//     // Normal scale is a vector2
+//     // envMap:  What is surrounding the scene --> reflection, refraction, lighting on mesh
+// })
 
-gui.add(amongUsMaterial, 'roughness').min(0).max(1).step(0.001)
-gui.add(amongUsMaterial, 'metalness').min(0).max(10).step(0.001)
-gui.add(amongUsMaterial.normalScale, 'x').min(0).max(1).step(0.001)
-gui.add(amongUsMaterial.normalScale, 'y').min(0).max(1).step(0.001)
+// gui.add(amongUsMaterial, 'roughness').min(0).max(1).step(0.001)
+// gui.add(amongUsMaterial, 'metalness').min(0).max(10).step(0.001)
+// gui.add(amongUsMaterial.normalScale, 'x').min(0).max(1).step(0.001)
+// gui.add(amongUsMaterial.normalScale, 'y').min(0).max(1).step(0.001)
 
 
 /**
