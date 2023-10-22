@@ -43,19 +43,19 @@ window.addEventListener('resize', () =>
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 camera.position.x = 0
-camera.position.y = 0
-camera.position.z = 2
+camera.position.y = 5
+camera.position.z = 30
 scene.add(camera)
-gui.add(camera.position, "x").min(-10).max(10).step(0.01).name("Camera X")
-gui.add(camera.position, "y").min(-10).max(10).step(0.01).name("Camera Y")
-gui.add(camera.position, "z").min(-10).max(10).step(0.01).name("Camera Z")
+gui.add(camera.position, "x").min(-100).max(100).step(0.01).name("Camera X")
+gui.add(camera.position, "y").min(-100).max(100).step(0.01).name("Camera Y")
+gui.add(camera.position, "z").min(-100).max(100).step(0.01).name("Camera Z")
 
 // Controls
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
 
 // // Load the among us textures
-// const textureLoader = new THREE.TextureLoader()
+const textureLoader = new THREE.TextureLoader()
 // const amongUsColorMap = textureLoader.load("/models/amongus/Textures/yellow_aud_diffuse.png")
 // const amongUsNormalMap = textureLoader.load("/models/amongus/Textures/amongusdude__nmap.png")
 // const amongUsRoughnessMap = textureLoader.load("/models/amongus/Textures/amongusdude__rough.png")
@@ -91,6 +91,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
 scene.add(ambientLight)
 gui.add(ambientLight, "intensity").min(0).max(10).step(0.01)
 
+// TODO: Delete this pointlight, make portal miasma glow
 const pointLight = new THREE.PointLight(0xffffff, 0.5)
 pointLight.position.x = 0
 pointLight.position.y = 2
@@ -102,22 +103,78 @@ gui.add(pointLight.position, 'x').min(-5).max(5).step(0.001).name("PointLight x"
 gui.add(pointLight.position, 'y').min(-5).max(5).step(0.001).name("PointLight y")
 gui.add(pointLight.position, 'z').min(0).max(10).step(0.001).name("PointLight z")
 
+// Add the ground plane for the desert
+const groundPlaneGeometry = new THREE.PlaneGeometry(250, 250)
+const GROUND_MAP_REPEAT_DISTANCE = 5
+// set textures
+const sandColourTexture = textureLoader.load("/textures/sand/Stylized_Sand_001_basecolor.jpg")
+sandColourTexture.repeat.set(GROUND_MAP_REPEAT_DISTANCE, GROUND_MAP_REPEAT_DISTANCE)
+sandColourTexture.wrapS = THREE.RepeatWrapping
+sandColourTexture.wrapT = THREE.RepeatWrapping
+const sandAOTexture = textureLoader.load("/textures/sand/Stylized_Sand_001_ambientOcclusion.jpg")
+sandAOTexture.repeat.set(GROUND_MAP_REPEAT_DISTANCE, GROUND_MAP_REPEAT_DISTANCE)
+sandAOTexture.wrapS = THREE.RepeatWrapping
+sandAOTexture.wrapT = THREE.RepeatWrapping
+const sandHeightTexture = textureLoader.load("/textures/sand/Stylized_Sand_001_height.png")
+sandHeightTexture.repeat.set(GROUND_MAP_REPEAT_DISTANCE, GROUND_MAP_REPEAT_DISTANCE)
+sandHeightTexture.wrapS = THREE.RepeatWrapping
+sandHeightTexture.wrapT = THREE.RepeatWrapping
+const sandNormalTexture = textureLoader.load("/textures/sand/Stylized_Sand_001_normal.jpg")
+sandNormalTexture.repeat.set(GROUND_MAP_REPEAT_DISTANCE, GROUND_MAP_REPEAT_DISTANCE)
+sandNormalTexture.wrapS = THREE.RepeatWrapping
+sandNormalTexture.wrapT = THREE.RepeatWrapping
+const sandRoughnessTexture = textureLoader.load("/textures/sand/Stylized_Sand_001_roughness.jpg")
+sandRoughnessTexture.repeat.set(GROUND_MAP_REPEAT_DISTANCE, GROUND_MAP_REPEAT_DISTANCE)
+sandRoughnessTexture.wrapS = THREE.RepeatWrapping
+sandRoughnessTexture.wrapT = THREE.RepeatWrapping
+const groundPlaneMaterial = new THREE.MeshStandardMaterial({
+    map: sandColourTexture,
+    aoMap: sandAOTexture,
+    displacementMap: sandHeightTexture,
+    normalMap: sandNormalTexture,
+    roughness: sandRoughnessTexture
+})
+const groundPlane = new THREE.Mesh(groundPlaneGeometry, groundPlaneMaterial)
+groundPlane.rotateX(Math.PI * 1.5)
+scene.add(groundPlane)
+
+// TODO: Add background plane wrapping around scene?
+// const nightSkyTexture = textureLoader.load("/textures/nightsky.jpg")
+// const nightSkyMaterial = new THREE.MeshStandardMaterial({
+//     map: nightSkyTexture
+// })
+// console.log(controls.maxDistance)
+// const backgroundPlane = new THREE.Mesh(groundPlaneGeometry, nightSkyMaterial)
+// backgroundPlane.position.z = 125
+// scene.add(backgroundPlane)
 
 // Load the among us model and material
 const gltfLoader = new GLTFLoader();
+// Load stone gate
+const GATE_SCALE = 2.5
+gltfLoader.load( '/models/stone_gate.glb', function ( gltf ) {
+
+	scene.add( gltf.scene );
+    gltf.scene.children[0].scale.set(GATE_SCALE, GATE_SCALE, GATE_SCALE)
+}, undefined, function ( error ) {
+
+	console.error( error );
+
+} );
+
 var amongUsObj;
 gltfLoader.load( '/models/amongus/AmongUsDude.glb', function ( gltf ) {
 
-	scene.add( gltf.scene );
-    console.log(gltf)
-    console.log(gltf.scene.children[0])
     amongUsObj = gltf.scene.children[0]
+    amongUsObj.position.y = GATE_SCALE * 0.7    // offset by gate model
+    amongUsObj.position.z = GATE_SCALE * 1
     gui.add(gltf.scene.children[0].position, "x").min(-10).max(10).step(0.001).name("AmongUs x")
     gui.add(gltf.scene.children[0].position, "y").min(-10).max(10).step(0.001).name("AmongUs y")
     gui.add(gltf.scene.children[0].position, "z").min(-10).max(10).step(0.001).name("AmongUs z")
     gui.add(gltf.scene.children[0].scale, "x").min(0).max(10).step(0.001).name("AmongUs scale x")
     gui.add(gltf.scene.children[0].scale, "y").min(0).max(10).step(0.001).name("AmongUs scale y")
     gui.add(gltf.scene.children[0].scale, "z").min(0).max(10).step(0.001).name("AmongUs scale z")
+	scene.add( gltf.scene );
 
 }, undefined, function ( error ) {
 
@@ -125,19 +182,21 @@ gltfLoader.load( '/models/amongus/AmongUsDude.glb', function ( gltf ) {
 
 } );
 
-// const amongUsMaterial = new THREE.MeshStandardMaterial({
-//     map: amongUsColorMap,
-//     roughnessMap: amongUsRoughnessMap,
-//     normalMap: amongUsNormalMap,
-//     metalnessMap: amongUsMetalnessMap
-//     // Normal scale is a vector2
-//     // envMap:  What is surrounding the scene --> reflection, refraction, lighting on mesh
-// })
+gltfLoader.load( '/models/necoarc/scene.gltf', function ( gltf ) {
 
-// gui.add(amongUsMaterial, 'roughness').min(0).max(1).step(0.001)
-// gui.add(amongUsMaterial, 'metalness').min(0).max(10).step(0.001)
-// gui.add(amongUsMaterial.normalScale, 'x').min(0).max(1).step(0.001)
-// gui.add(amongUsMaterial.normalScale, 'y').min(0).max(1).step(0.001)
+	scene.add( gltf.scene );
+    gltf.scene.children[0].position.y = 0.3 // TODO: Translate neco arc up the y axis based on height map of  
+    gltf.scene.children[0].position.z = 20
+    gltf.scene.children[0].rotateZ(Math.PI * 0.5)
+    gui.add(gltf.scene.children[0].position, "x").min(-50).max(50).step(0.001).name("Neco Arc x")
+    gui.add(gltf.scene.children[0].position, "y").min(0).max(1).step(0.001).name("Neco Arc y")
+    gui.add(gltf.scene.children[0].position, "z").min(-50).max(50).step(0.001).name("Neco Arc z")
+
+}, undefined, function ( error ) {
+
+	console.error( error );
+
+} );
 
 
 /**
