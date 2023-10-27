@@ -161,13 +161,74 @@ gltfLoader.load( '/models/stone_gate.glb', function ( gltf ) {
 	console.error( error );
 
 } );
+const particleTexture = textureLoader.load("/particles/9.png")
+/**
+ * Particles
+ */
+// Each triange has 3 vertices, each vertex has 3 values
+const particlesGeometry = new THREE.BufferGeometry()
+const maxHeight = 5
+const gap = 1
+const firstWidth = 6
+const particlesPerPoint = 5000
+var particleIdx = 0
+const particlesPositions = new Float32Array((maxHeight * firstWidth + Math.floor(maxHeight / 2)) * 3 * particlesPerPoint)
+
+for (let height = 0; height < maxHeight; ++height)    {
+    let startingX = 0
+    let startingY = 0 - height * gap
+    let rowLength = firstWidth
+    if (height % 2) {
+        // Displace every second row, by gap / 2
+        startingX -= gap / 2
+        rowLength = firstWidth + 1
+    }
+    for (let i = 0; i < rowLength; ++i)
+    {
+        for (let z = 0; z < particlesPerPoint; z++)
+        {
+            particlesPositions[particleIdx] = startingX + i * gap + Math.random() * 0.05
+            particlesPositions[particleIdx + 1] = startingY + Math.random() * 0.05
+            particlesPositions[particleIdx + 2] = Math.min(1, 10 / z ) < 1 ? Math.min(1, 10 / z ) : 0
+            particleIdx += 3    
+        }
+    }
+}
+const particlesAttributes = new THREE.BufferAttribute(particlesPositions, 3)
+particlesGeometry.setAttribute("position", particlesAttributes)
+const particlesMaterial = new THREE.PointsMaterial({
+    color: 0xFFD700,
+    size: 0.02,
+    sizeAttenuation: true,
+    transparent: true,
+    alphaMap: particleTexture,
+    // alphaTest: 0.001,    // Basically opacity thresholding
+    // depthTest: false,   // Draws particles regardless of depth --> Doesn't work when you have other things in the scene
+    depthWrite: false,  // Depth is stored in a depth buffer. Flag to deactivate in depth buffer
+    blending: THREE.AdditiveBlending,   // Pixels that overlap have their colours blended additively
+
+})
+const points = new THREE.Points(particlesGeometry, particlesMaterial)
+// points.scale.x = 4
+// points.scale.y = 4
+scene.add(points)
+
+
+gui.add(points.position, "x").min(-50).max(50).step(0.001).name("points x")
+gui.add(points.position, "y").min(0).max(50).step(0.001).name("points y")
+gui.add(points.position, "z").min(-50).max(50).step(0.001).name("points z")
 
 var amongUsObj;
 gltfLoader.load( '/models/amongus/AmongUsDude.glb', function ( gltf ) {
 
     amongUsObj = gltf.scene.children[0]
+    console.log(amongUsObj)
     amongUsObj.position.y = GATE_SCALE * 0.7    // offset by gate model
     amongUsObj.position.z = GATE_SCALE * 1
+    // Points are positioned relative to among us
+    points.position.x = amongUsObj.position.x - 2.5
+    points.position.y = amongUsObj.position.y + 5
+
     gui.add(gltf.scene.children[0].position, "x").min(-10).max(10).step(0.001).name("AmongUs x")
     gui.add(gltf.scene.children[0].position, "y").min(-10).max(10).step(0.001).name("AmongUs y")
     gui.add(gltf.scene.children[0].position, "z").min(-10).max(10).step(0.001).name("AmongUs z")
@@ -205,8 +266,6 @@ gltfLoader.load( '/models/necoarc/scene.gltf', function ( gltf ) {
  * ShaderMaterial and RawShaderMaterial let you define your custom shaders
  */
 // Add Among Us standing on a cube to the scene
-
-
 
 /**
  * Renderer
