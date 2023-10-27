@@ -48,10 +48,9 @@ for (let height = 0; height < maxHeight; ++height)    {
         for (let z = 0; z < particlesPerPoint; z++)
         {
             let random = Math.random() * 0.03
-            particlesPositions[particleIdx] = startingX + i * gap
-            particlesPositions[particleIdx + 1] = startingY
-            particlesPositions[particleIdx + 1] = Math.random() * 1000
-            // particlesPositions[particleIdx + 2] = Math.min(1, 10 / z ) < 1 ? Math.min(1, 10 / z ) : 0
+            particlesPositions[particleIdx] = startingX + i * gap  + random
+            particlesPositions[particleIdx + 1] = startingY + random
+            particlesPositions[particleIdx + 2] = Math.min(1, 10 / z ) < 1 ? Math.min(1, 10 / z ) : 0
             particleIdx += 3    
         }
     }
